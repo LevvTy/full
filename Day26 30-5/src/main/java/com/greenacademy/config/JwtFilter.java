@@ -1,5 +1,6 @@
 package com.greenacademy.config;
 
+import com.greenacademy.model.UserAdapter;
 import com.greenacademy.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,38 +34,28 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-
             String token = parseJwtToken(request);
-            // Validate token
             if (token != null && jwtUtils.validateJwtToken(token)) {
                 String username = jwtUtils.getUsername(token);
+
+                // Load UserDetails (UserAdapter)
+                UserAdapter userDetails = (UserAdapter) userService.loadUserByUsername(username);
+
                 Claims claims = Jwts.parser()
                         .setSigningKey(jwtUtils.getSigningKey())
                         .parseClaimsJws(token)
                         .getBody();
 
-
-                List<String> roles = claims.get("roles", List.class); // ["ROLE_ADMIN", "ROLE_USER", ...]
-
+                List<String> roles = claims.get("roles", List.class);
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                // 🟢 Tạo Authentication từ username + roles
-//                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-//                        username, null, authorities
-//                );
-//                UserDetails userDetails = userService.loadUserByUsername(username);
-//                UsernamePasswordAuthenticationToken authenticationToken =
-//                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
             }
         } catch (Exception ex) {
             LOGGER.error("JwtTokenFilter doFilterInternal with exception {}", ex);

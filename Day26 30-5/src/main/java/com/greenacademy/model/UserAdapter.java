@@ -24,11 +24,11 @@ public class UserAdapter implements UserDetails {
         if (user.getRoles() != null) {
             for (UserRole ur : user.getRoles()) {
                 String roleName = ur.getRole().getRoleName();
-                System.out.println("User has role: " + roleName); // ✅ debug
+                System.out.println("User has role: " + roleName);
                 authorities.add(new SimpleGrantedAuthority(roleName));
             }
         } else {
-            System.out.println("User has NO roles"); // ✅ debug
+            System.out.println("User has NO roles"); 
         }
         return authorities;
     }

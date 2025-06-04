@@ -1,6 +1,6 @@
 spring:
   application:
-    name: BookStore
+    name: Shop
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/Shop
@@ -15,6 +15,22 @@ spring:
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: accthanh001@gmail.com
+    password: "mmzx mdeu rplt epeo"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  spring.mail.properties.mail.smtp.auth: true
+
+
+
 
 green:
   jwt:

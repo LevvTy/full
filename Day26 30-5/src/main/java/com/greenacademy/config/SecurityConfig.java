@@ -135,9 +135,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/token").permitAll()
+                        .requestMatchers("/api/customer/save").permitAll()
+                        .requestMatchers("/api/auth/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/product/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/product/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPointJwt))
